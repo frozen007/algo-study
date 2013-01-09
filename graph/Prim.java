@@ -1,5 +1,8 @@
 import java.util.*;
 
+/**
+ * minimum spanning tree
+ */
 public class Prim {
     public static void main(String[] args) throws Exception {
         ArrayList<Node>[] adjtab = Dijkstra.readGraph(args[0], false);
