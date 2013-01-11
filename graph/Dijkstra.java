@@ -121,13 +121,17 @@ public class Dijkstra {
         String line = reader.readLine();
         int vcount = Integer.parseInt(line);
         line = reader.readLine();
-        while(line!=null) {
+        while(line!=null&&!"".equals(line)) {
             String[] input = line.split(",");
+            String dist = "1";
+            if(input.length>2) {
+                dist = input[2];
+            }
 
-            addFromToNode(input[0], input[1], input[2], adjtab);
+            addFromToNode(input[0], input[1], dist, adjtab);
 
             if(functional==false) {
-                addFromToNode(input[1], input[0], input[2], adjtab);
+                addFromToNode(input[1], input[0], dist, adjtab);
             }
 
             line = reader.readLine();
