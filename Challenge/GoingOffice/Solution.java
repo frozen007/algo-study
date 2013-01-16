@@ -17,6 +17,22 @@ public class Solution {
         int to = Integer.parseInt(input[1]);
 
         Solution solution = new Solution(adjtab, N);
+
+        Vertex[] normalRecord = solution.calculateMinDist(from, to, -1, -1);
+        HashSet<String> roads = new HashSet<String>();
+        for(int cur=to;;) {
+            int path = normalRecord[cur].path;
+            if(cur==path) {
+                break;
+            }
+            if(path>cur) {
+                roads.add(cur+"-"+path);
+            } else {
+                roads.add(path+"-"+cur);
+            }
+            cur=path;
+        }
+
         line = scanner.nextLine();
         int Q = Integer.parseInt(line);
 
@@ -25,7 +41,14 @@ public class Solution {
             input  = line.split(" ");
             int qu = Integer.parseInt(input[0]);
             int qv = Integer.parseInt(input[1]);
-            int minDist = solution.calculateMinDist(from, to, qu, qv);
+            int minDist;
+            if(!roads.contains(qu+"-"+qv) && !roads.contains(qv+"-"+qu)) {
+                minDist = normalRecord[to].dist;
+            } else {
+                Vertex[] record = solution.calculateMinDist(from, to, qu, qv);
+                minDist = record[to].dist;
+
+            }
             if(Integer.MAX_VALUE == minDist) {
                 System.out.println("Infinity");
             } else {
@@ -45,7 +68,7 @@ public class Solution {
         this.N = N;
     }
 
-    public int calculateMinDist(int from, int to, int qu, int qv) throws Exception {
+    public Vertex[] calculateMinDist(int from, int to, int qu, int qv) throws Exception {
         Vertex[] record = new Vertex[N];
         //init record
         for(int i=0;i<N;i++) {
@@ -58,26 +81,26 @@ public class Solution {
 
         vertex.dist = 0;
         vertex.path = from;
-        vertex.heappos = pQueue.add(from);
+        pQueue.add(from);
 
         
         while(pQueue.currentlen>0) {
             Vertex uVertex = pQueue.findMin();
-            if(uVertex.known) {
-                continue;
-            }
 
             uVertex.known=true;
 
             ArrayList<AdjNode> adjNodes = adjtab.get(uVertex.v);
             for(AdjNode node : adjNodes) {
+                Vertex vVertex = record[node.v];
+                if(vVertex.known) {
+                    continue;
+                }
+                    
                 //filtering blocked road(qu,qv)
                 if(qu==uVertex.v && qv==node.v || qv==uVertex.v && qu==node.v) {
                     continue;
                 }
 
-
-                Vertex vVertex = record[node.v];
                 if(vVertex.dist > uVertex.dist+node.w) {
                     //calibrate to uVertex
                     vVertex.dist = uVertex.dist+node.w;
@@ -87,19 +110,11 @@ public class Solution {
                     } else {
                         pQueue.perloacteUp(vVertex.heappos);
                     }
-                } else {
-                    if(vVertex.heappos==-1) {
-                        pQueue.add(vVertex.v);
-                    }
                 }
             }
         }
 
-        vertex = record[to];
-        if(vertex==null) {
-            return Integer.MAX_VALUE;
-        }
-        return vertex.dist;
+        return record;
     }
 
     static class AdjNode {
@@ -158,10 +173,10 @@ public class Solution {
             int hole = pos;
             for(;cur*2<=currentlen;hole=cur) {
                 cur*=2;
-                if(cur!=currentlen && record[cur].dist>record[cur+1].dist) {
+                if(cur!=currentlen && record[heaparray[cur]].dist>record[heaparray[cur+1]].dist) {
                     cur++;
                 }
-                if(record[headV].dist < record[cur].dist) {
+                if(record[headV].dist < record[heaparray[cur]].dist) {
                     break;
                 } else {
                     heaparray[hole] = heaparray[cur];
