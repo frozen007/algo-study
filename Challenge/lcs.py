@@ -1,6 +1,8 @@
 '''
 1143. 最长公共子序列
 https://leetcode-cn.com/problems/longest-common-subsequence/
+
+# tag(dp)
 '''
 class Solution(object):
     def longestCommonSubsequence(self, text1, text2):
